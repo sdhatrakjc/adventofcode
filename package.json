@@ -1,0 +1,30 @@
+{
+    "name": "adevntofcode",
+    "version": "1.0.0",
+    "description": "advent of code",
+    "main": "index.js",
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com:sdhatrakjc/adventofcode.git"
+    },
+    "keywords": [
+        "adventofcode"
+    ],
+    "author": "sdhatrakjc",
+    "license": "ISC",
+    "bugs": {
+        "url": "https://github.com/sdhatrakjc/adventofcode/issues"
+    },
+    "homepage": "https://github.com/sdhatrakjc/adventofcode#readme",
+    "devDependencies": {
+        "@types/node": "^18.11.10",
+        "eslint": "^8.3.0",
+        "typescript": "^4.9.3"
+    },
+    "dependencies": {
+        "ts-node": "^10.9.1"
+    }
+}
