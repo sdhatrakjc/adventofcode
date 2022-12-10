@@ -1,7 +1,7 @@
 "use strict";
 exports.__esModule = true;
 var fs_1 = require("fs");
-var input = (0, fs_1.readFileSync)('./2022/day8/input.txt', "utf-8").toString().split("\n");
+var input = (0, fs_1.readFileSync)('./2022/day08/input.txt', "utf-8").toString().split("\n");
 input.pop();
 // part 1
 function isVisible(x, y) {

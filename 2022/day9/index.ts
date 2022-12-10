@@ -1,6 +1,6 @@
 import { readFileSync } from 'fs';
 
-const input = readFileSync('./2022/day9/input.txt', "utf-8").toString().split("\n")
+const input = readFileSync('./2022/day09/input.txt', "utf-8").toString().split("\n")
 input.pop()
 
 function visitLocation(knots: number[][]){

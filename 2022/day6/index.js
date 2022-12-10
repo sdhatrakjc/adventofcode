@@ -10,7 +10,7 @@ var __spreadArray = (this && this.__spreadArray) || function (to, from, pack) {
 };
 exports.__esModule = true;
 var fs_1 = require("fs");
-var input = (0, fs_1.readFileSync)('./2022/day6/input.txt', "utf-8").toString().split("");
+var input = (0, fs_1.readFileSync)('./2022/day06/input.txt', "utf-8").toString().split("");
 var findMarker = function (distinctChars) {
     return (input
         .map(function (_, index) { return input.slice(index, index + distinctChars); })

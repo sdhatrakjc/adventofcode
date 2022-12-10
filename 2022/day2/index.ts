@@ -1,6 +1,6 @@
 import * as fs from 'fs';
 
-const input = fs.readFileSync('./2022/day2/input.txt', 'utf-8')
+const input = fs.readFileSync('./2022/day02/input.txt', 'utf-8')
 	.trim()
 	.split('\n');
 

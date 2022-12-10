@@ -1,6 +1,6 @@
 import { readFileSync } from 'fs';
 
-const input = readFileSync('./2022/day7/input.txt', "utf-8").toString().split(/\r?\n/);
+const input = readFileSync('./2022/day07/input.txt', "utf-8").toString().split(/\r?\n/);
 input.pop()
 
 let path: string[] = []

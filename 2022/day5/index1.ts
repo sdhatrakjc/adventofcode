@@ -18,7 +18,7 @@ class Stack {
     }
 }
 
-const input = fs.readFileSync('./2022/day5/input.txt', 'utf-8')
+const input = fs.readFileSync('./2022/day05/input.txt', 'utf-8')
 				.split('\n\n')
 				
 const stackCount = Math.ceil(input[0].split('\n')[0].length / 4);

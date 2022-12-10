@@ -1,7 +1,7 @@
 "use strict";
 exports.__esModule = true;
 var fs = require("fs");
-var input = fs.readFileSync('./2022/day1/input.txt', 'utf-8')
+var input = fs.readFileSync('./2022/day01/input.txt', 'utf-8')
     .trim()
     .split('\n');
 var elveCalories = [0];

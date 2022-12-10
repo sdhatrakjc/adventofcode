@@ -2,7 +2,7 @@
 var _a;
 exports.__esModule = true;
 var fs_1 = require("fs");
-var input = (0, fs_1.readFileSync)('./2022/day7/input.txt', "utf-8").toString().split(/\r?\n/);
+var input = (0, fs_1.readFileSync)('./2022/day07/input.txt', "utf-8").toString().split(/\r?\n/);
 input.pop();
 var path = [];
 var sizes = new Map();

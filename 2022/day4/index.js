@@ -1,7 +1,7 @@
 "use strict";
 exports.__esModule = true;
 var fs = require("fs");
-var input = fs.readFileSync('./2022/day4/input.txt', 'utf-8')
+var input = fs.readFileSync('./2022/day04/input.txt', 'utf-8')
     .trim()
     .split('\n');
 /*
