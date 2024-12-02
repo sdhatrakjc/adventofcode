@@ -10,3 +10,6 @@ yarn-error.log
 
 # VSCode
 .vscode
+
+# ignore 2023 solutions
+2023/
