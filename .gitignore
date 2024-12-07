@@ -13,3 +13,5 @@ yarn-error.log
 
 # ignore 2023 solutions
 2023/
+
+**/__pycache__/**
