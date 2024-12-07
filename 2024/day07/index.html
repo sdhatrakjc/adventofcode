@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bridge Repair</title>
+    <script
+        src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/p5.js"></script>
+    <style>
+        body {
+            margin: 0;
+        }
+
+        canvas {
+            display: block;
+        }
+    </style>
+</head>
+
+<body>
+    <script>
+        let data = [];
+        let yOffset = 0;
+        let animationSpeed = 0.2;
+        let animationStarted = false;
+        const highlightRow = 14;
+        let bgImage;
+        let operatorPositions = [];
+        let processingComplete = false;
+        let result = 0;
+        let displayedResult = 0;
+
+        function preload() {
+            bgImage = loadImage('/static/christmas-tree.jpg');
+        }
+
+        function setup() {
+            createCanvas(windowWidth, windowHeight);
+            fetch('/api')
+                .then(response => response.json())
+                .then(json => {
+                    data = json.values.map((value, index) => ({
+                        value: value,
+                        numbers: json.numbers[index],
+                        operators: json.operators[index],
+                        results: json.results[index]
+                    }));
+                });
+        }
+
+        function draw() {
+            background(255);
+            image(bgImage, 0, 0, width, height);
+
+            textSize(32);
+            fill(255, 255, 0); // yellow
+            text('Total Calibration Result', width / 2, 150);
+            displayedResult = lerp(displayedResult, result, 0.1);
+            text(`${Math.round(displayedResult)}`, width / 2, 190);
+
+            textSize(windowWidth * 0.01);
+
+            fill(128, 128, 128, 100); // grey tint
+            rect(0, 0, width, height);
+
+            textSize(20);
+            let y = yOffset;
+
+            if (animationStarted) {
+                for (let i = 0; i < data.length; i++) {
+                    let item = data[i];
+                    let displayText;
+
+                    if (y <= highlightRow * 30) { // Adjusted for spacing
+                        // Processed rows
+                        if (item.operators.length > 0) {
+                            displayText = `✅ ${item.value} = ${item.numbers[0]} `;
+                            for (let j = 0; j < item.operators.length; j++) {
+                                let op = item.operators[j];
+                                if (op === '+') {
+                                    displayText += ` ＋ ${item.numbers[j + 1]}`;
+                                } else if (op === '*') {
+                                    displayText += ` ✲ ${item.numbers[j + 1]}`;
+                                } else {
+                                    displayText += ` || ${item.numbers[j + 1]}`;
+                                }
+                                // displayText += `${item.operators[j]} ${item.numbers[j + 1]}`;
+                            }
+                            result = item.results;
+                        } else {
+                            displayText = `❌ ${item.value}: ${item.numbers.join(' ')}`;
+                        }
+                    } else {
+                        // unprocessed rows
+                        displayText = `${item.value}: ${item.numbers.join(' ')}`;
+                    }
+
+                    // current row is highlighted
+                    if (y > highlightRow * 30 && y < (highlightRow + 1) * 30) {
+                        fill(96, 139, 193); // blue
+                        rect(0, y - 25, width, 36);
+                        fill(255); // white
+
+                        // initialize operator positions
+                        if (operatorPositions.length !== item.operators.length) {
+                            operatorPositions = item.operators.map(() => ({
+                                x: width / 2,
+                                y: 300,
+                            }));
+                        }
+
+                        // animate operators
+                        // todo: this is still not like the way we wanted but atleast it's better than before
+                        let allOperatorsInPlace = true;
+                        for (let j = 0; j < item.operators.length; j++) {
+                            let targetX = 150;
+                            for (let k = 0; k < j; k++) {
+                                targetX += textWidth(` ${item.operators[k]} ${item.numbers[k + 1]}`);
+                            }
+                            let targetY = y;
+                            operatorPositions[j].x = lerp(operatorPositions[j].x, targetX, 0.05);
+                            operatorPositions[j].y = lerp(operatorPositions[j].y, targetY, 0.05);
+                            text(item.operators[j], operatorPositions[j].x, operatorPositions[j].y);
+
+                            if (abs(operatorPositions[j].x - targetX) > 1 || abs(operatorPositions[j].y - targetY) > 1) {
+                                allOperatorsInPlace = false;
+                            }
+                        }
+
+                        let textWidthValue = textWidth(displayText);
+                        text(displayText, 50, y);
+
+                        if (allOperatorsInPlace && !processingComplete) {
+                            processingComplete = true;
+
+                        } else {
+                            setTimeout(() => {
+                                animationSpeed = 1;
+                            }, 500);
+                        }
+
+                    } else if (y < highlightRow * 30) {
+                        if (item.operators.length > 0) {
+                            fill(22, 159, 72); // green
+                        } else {
+                            fill(255, 120, 120); // red
+                        }
+                        text(displayText, 50, y);
+                    } else {
+                        fill(0); // black
+                        let textWidthValue = textWidth(displayText);
+                        text(displayText, 50, y);
+                    }
+
+
+                    y += 30;
+                }
+
+                yOffset -= animationSpeed;
+                if (yOffset < -30 * data.length) {
+                    yOffset = height;
+                }
+
+            }
+        }
+
+        function mousePressed() {
+            animationStarted = true;
+        }
+
+        function keyPressed() {
+            if (key === ' ') {
+                animationStarted = !animationStarted;
+            }
+        }
+    </script>
+</body>
+
+</html>

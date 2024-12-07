@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Guard Gallivant</title>
+    <script
+        src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/p5.js"></script>
+</head>
+
+<body>
+    <script>
+        // for grid
+        let inputGrid;
+        let cols, rows;
+
+        // for path
+        let visitedPositions;
+        let currentCell = 0;
+
+        // for rendering
+        let cellSize = 20;
+        let padding = 5; // padding around the grid
+        let skipStep = 50; // speed of animation
+
+        // for zooming and panning
+        // needed to align grid in center of canvas
+        let zoom = 1;
+        let offsetX = 0;
+        let offsetY = 0;
+
+        // todo: to check if we can add back zooming and panning again.
+        // we added but removed because while panning the grid was not moving as expected.
+
+        function setup() {
+            fetch('/api')
+                .then(response => response.json())
+                .then(data => {
+                    inputGrid = data.input;
+                    visitedPositions = data.visited_positions;
+
+                    rows = inputGrid.length;
+                    cols = inputGrid[0].length;
+                    createCanvas(windowWidth, windowHeight);
+                    frameRate(30);
+
+                    // // fit the entire grid within the canvas
+                    let zoomX = (width - 2 * padding) / (cols * cellSize);
+                    let zoomY = (height - 2 * padding) / (rows * cellSize);
+                    zoom = min(zoomX, zoomY);
+
+                    // center the grid
+                    offsetX = (width - cols * cellSize * zoom) / 2;
+                    offsetY = (height - rows * cellSize * zoom) / 2;
+                });
+        }
+
+        function draw() {
+            if (!inputGrid) return;
+
+            background(255);
+            translate(offsetX + padding, offsetY + padding);
+            scale(zoom);
+
+            stroke(150); // light grey grid
+            strokeWeight(1 / zoom); // thin grid
+            for (let i = 0; i < rows; i++) {
+                for (let j = 0; j < cols; j++) {
+                    if (inputGrid[i][j] === '#') {
+                        fill(105); // dark grey for obstructions
+                    } else {
+                        fill(200); // grey for grid
+                    }
+                    rect(j * cellSize, i * cellSize, cellSize, cellSize);
+                }
+            }
+
+            noFill();
+            stroke(0, 0, 255); // blue path
+            // https://p5js.org/reference/p5/strokeWeight/
+            strokeWeight(2 / zoom); // as we are scaling the grid, we need to scale the stroke weight as well
+            beginShape();
+            for (let i = 0; i <= currentCell && i < visitedPositions.length; i++) {
+                let pos = visitedPositions[i];
+                vertex(pos[1] * cellSize + cellSize / 2, pos[0] * cellSize + cellSize / 2);
+            }
+            endShape();
+
+            if (currentCell < visitedPositions.length) {
+                let pos = visitedPositions[currentCell];
+                fill(0, 255, 0); // green for tip
+                noStroke();
+                rect(pos[1] * cellSize, pos[0] * cellSize, cellSize, cellSize);
+            }
+
+            currentCell += skipStep;
+            if (currentCell >= visitedPositions.length) {
+                noLoop();
+            }
+        }
+    </script>
+</body>
+
+</html>
