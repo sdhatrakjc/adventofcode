@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Restroom Redoubt</title>
+    <script
+        src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/p5.js"></script>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+        }
+
+        canvas {
+            display: block;
+        }
+    </style>
+</head>
+
+<body>
+    <script>
+        let data = [];
+        let currentStep = 0;
+        let animationStarted = false;
+        const cols = 103;
+        const rows = 101;
+
+        function setup() {
+            createCanvas(windowWidth, windowHeight);
+
+            fetch('/api')
+                .then(response => response.json())
+                .then(json => {
+                    data = json.positions;
+                });
+            frameRate(10);
+            textAlign(CENTER, CENTER);
+            textSize(12);
+        }
+
+        function draw() {
+            // let's try gradient this time
+            for (let y = 0; y < height; y++) {
+                let inter = map(y, 0, height, 0, 1);
+                let c = lerpColor(color(0, 0, 50), color(100, 150, 255), inter);
+                stroke(c);
+                line(0, y, width, y);
+            }
+
+            if (data.length > 0) {
+                let robots = data[currentStep];
+                let gridWidth = min(width, height * (cols / rows));
+                let gridHeight = min(height, width * (rows / cols));
+                let cellWidth = gridWidth / rows;
+                let cellHeight = gridHeight / cols;
+
+                let xOffset = (width - gridWidth) / 2;
+                let yOffset = (height - gridHeight) / 2;
+
+                fill(255, 255, 0); // yellow for the robots
+                noStroke();
+
+                for (let robot of robots) {
+                    let px = robot[0];
+                    let py = robot[1];
+                    text('✲',
+                        px * cellWidth + xOffset + cellWidth / 2,
+                        py * cellHeight + yOffset + cellHeight / 2,
+                    );
+                }
+
+                if (animationStarted) {
+                    if (currentStep < data.length - 1) {
+                        currentStep++;
+                    } else {
+                        animationStarted = false;
+                    }
+                }
+            }
+        }
+
+        function mousePressed() {
+            animationStarted = true;
+            currentStep = 0;
+        }
+
+        function keyPressed() {
+            if (key === ' ') {
+                animationStarted = !animationStarted;
+            }
+        }
+
+        function windowResized() {
+            resizeCanvas(windowWidth, windowHeight);
+        }
+    </script>
+</body>
+
+</html>

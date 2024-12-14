@@ -43,7 +43,7 @@ for sec in range(1, 10000):
         new_robots.append((npx, npy, vx, vy))
         grid[npy][npx] = '*'
 
-    image = "\n".join("".join(row) for row in grid)
+    image = "\n".join("".join(tile) for tile in grid)
     # print(image)
     if '*******************************' in image:
         print(image)
