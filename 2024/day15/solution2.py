@@ -1,6 +1,6 @@
 from collections import deque
 
-input, input_moves = open("./day15/test.txt").read().strip().split("\n\n")
+input, input_moves = open("./day15/input.txt").read().strip().split("\n\n")
 old_grid = [list(row) for row in input.split("\n")]
 grid = []
 for row in old_grid:
@@ -38,57 +38,58 @@ for row in range(rows):
             current = row, col
             break
 
-def is_empty(x, y):
-    return grid[x][y] == '.'
+def is_empty(r, c):
+    return grid[r][c] == '.'
 
-def is_wall(x, y):
-    return grid[x][y] == '#'
+def is_wall(r, c):
+    return grid[r][c] == '#'
 
-def lets_move(curr_x, curr_y, dx, dy):
+def lets_move(curr_r, curr_c, dr, dc):
     pending_moves = set()
-    check_cells = deque([(curr_x, curr_y)])
+    check_cells = deque([(curr_r, curr_c)])
 
     while check_cells:
-        x, y = check_cells.pop()
-        if (x, y) in pending_moves:
+        r, c = check_cells.pop()
+        if (r, c) in pending_moves:
             continue
 
-        if is_wall(x, y):
-            return (curr_x, curr_y)
+        if is_wall(r, c):
+            return (curr_r, curr_c)
 
-        if grid[x][y] == "[":
-            check_cells.append((x, y+1))
+        if grid[r][c] == "[":
+            check_cells.append((r, c+1))
 
-        elif grid[x][y] == "]":
-            check_cells.append((x, y-1))
+        elif grid[r][c] == "]":
+            check_cells.append((r, c-1))
 
-        if not is_empty(x, y):
-            pending_moves.add((x, y))
-            check_cells.append((x + dx, y + dy))
+        if not is_empty(r, c):
+            pending_moves.add((r, c))
+            check_cells.append((r + dr, c + dc))
 
     new_positions = []
     while pending_moves:
-        x, y = pending_moves.pop()
-        box = grid[x][y]
-        grid[x][y] = '.'
-        x += dx; y += dy
-        new_positions.append((x, y, box))
+        r, c = pending_moves.pop()
+        box = grid[r][c]
+        grid[r][c] = '.'
+        r += dr
+        c += dc
+        new_positions.append((r, c, box))
 
-    for x, y, box in reversed(new_positions):
-        grid[x][y] = box
+    for r, c, box in reversed(new_positions):
+        grid[r][c] = box
 
-    return (curr_x + dx, curr_y + dy)
+    return (curr_r + dr, curr_c + dc)
 
-for mx, my in moves:
-    current = lets_move(current[0], current[1], mx, my)
+for mr, mc in moves:
+    current = lets_move(current[0], current[1], mr, mc)
 
 image = "\n".join(["".join(row) for row in grid])
 print(image)
 
 result = 0
-for i in range(rows):
-    for j in range(cols):
-        if grid[i][j] == "[":
-            result += 100 * i + j
+for row in range(rows):
+    for col in range(cols):
+        if grid[row][col] == "[":
+            result += 100 * row + col
 
 print(result)

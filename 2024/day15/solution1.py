@@ -21,57 +21,57 @@ for row in range(rows):
             current = row, col
             break
 
-def is_in_bound(x, y):
-    return 0 <= x < rows and 0 <= y < cols
+def is_in_bound(r, c):
+    return 0 <= r < rows and 0 <= c < cols
 
-def is_empty(x, y):
-    return grid[x][y] == '.'
+def is_empty(r, c):
+    return grid[r][c] == '.'
 
-def is_box(x, y):
-    return grid[x][y] == 'O'
+def is_box(r, c):
+    return grid[r][c] == 'O'
 
-def is_wall(x, y):
-    return grid[x][y] == '#'
+def is_wall(r, c):
+    return grid[r][c] == '#'
 
-def can_move(x, y, dx, dy):
-    curr_x, curr_y = x, y
+def can_move(r, c, dr, dc):
+    curr_r, curr_c = r, c
     boxes_to_push = []
 
-    while is_in_bound(curr_x, curr_y):
-        if is_wall(curr_x, curr_y):
+    while is_in_bound(curr_r, curr_c):
+        if is_wall(curr_r, curr_c):
             return False, []
-        elif is_box(curr_x, curr_y):
-            boxes_to_push.append((curr_x, curr_y))
-        elif is_empty(curr_x, curr_y):
+        elif is_box(curr_r, curr_c):
+            boxes_to_push.append((curr_r, curr_c))
+        elif is_empty(curr_r, curr_c):
             break
 
-        curr_x += dx
-        curr_y += dy
+        curr_r += dr
+        curr_c += dc
 
-    if not is_in_bound(curr_x, curr_y) or is_wall(curr_x, curr_y):
+    if not is_in_bound(curr_r, curr_c) or is_wall(curr_r, curr_c):
         return False, []
 
     return True, boxes_to_push
 
-for mx, my in moves:
-    nx, ny = current[0] + mx, current[1] + my
+for mr, mc in moves:
+    nr, nc = current[0] + mr, current[1] + mc
 
-    if is_in_bound(nx, ny) and not is_wall(nx, ny):
-        if is_empty(nx, ny):
+    if is_in_bound(nr, nc) and not is_wall(nr, nc):
+        if is_empty(nr, nc):
             grid[current[0]][current[1]] = '.'
-            grid[nx][ny] = '@'
-            current = (nx, ny)
-        elif is_box(nx, ny):
-            move, boxes = can_move(nx, ny, mx, my)
+            grid[nr][nc] = '@'
+            current = (nr, nc)
+        elif is_box(nr, nc):
+            move, boxes = can_move(nr, nc, mr, mc)
             if move:
-                for bx, by in reversed(boxes):
-                    grid[bx + mx][by + my] = 'O'
-                    grid[bx][by] = '.'
+                for br, bc in reversed(boxes):
+                    grid[br + mr][bc + mc] = 'O'
+                    grid[br][bc] = '.'
                 grid[current[0]][current[1]] = '.'
-                grid[nx][ny] = '@'
-                current = (nx, ny)
+                grid[nr][nc] = '@'
+                current = (nr, nc)
 
-image = "\n".join(["".join(row) for row in grid])
+image = "\n".join(["".join(cell) for cell in grid])
 print(image)
 
 result = 0
