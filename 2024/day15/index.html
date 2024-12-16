@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Warehouse Woes</title>
+    <script
+        src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/p5.js"></script>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+        }
+
+        canvas {
+            display: block;
+        }
+    </style>
+</head>
+
+<body>
+    <script>
+        let font;
+        let data;
+        let cellSize = 30;
+        let currentStep = 0;
+        let animationStarted = false;
+        let isLoading = true;
+        let hasError = false;
+        let lastUpdateTime = 0;
+
+        // for moving camera
+        let mouseRotationX = 0;
+        let mouseRotationY = 0;
+        let targetRotationX = 55;
+        let targetRotationY = -45;
+        let zoomLevel = 300;
+        let panX = 0;
+        let targetPanX = 0;
+        let panY = 0;
+        let targetPanY = 0;
+
+        function preload() {
+            // todo: is there a default way to load fonts for webgl?
+            font = loadFont('./static/KronaOne-Regular.ttf');
+        }
+
+        function setup() {
+            createCanvas(windowWidth, windowHeight, WEBGL);
+            frameRate(60);
+
+            textFont(font);
+            textAlign(CENTER, CENTER);
+            textSize(12);
+
+            angleMode(DEGREES);
+            perspective(60, width / height, 0.1, 5000);
+
+            fetch('/api')
+                .then(response => {
+                    if (!response.ok) throw new Error('something happened');
+                    return response.json();
+                })
+                .then(json => {
+                    data = json.grids;
+                    isLoading = false;
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    hasError = true;
+                    isLoading = false;
+                });
+        }
+
+        function draw() {
+            background(220);
+
+            // for mouse controls
+            mouseRotationX = lerp(mouseRotationX, targetRotationX, 0.1);
+            mouseRotationY = lerp(mouseRotationY, targetRotationY, 0.1);
+
+            panX = lerp(panX, targetPanX, 0.1);
+            panY = lerp(panY, targetPanY, 0.1);
+
+            camera(
+                sin(mouseRotationY) * zoomLevel + panX,
+                cos(mouseRotationY) * zoomLevel + panY,
+                sin(mouseRotationX) * zoomLevel,
+                panX, panY, 0,
+                0, 0, -1
+            );
+
+            // lighting
+            ambientLight(100);  // Subtle ambient light
+            directionalLight(255, 255, 255, 0, -1, -0.5);  // Main light from top
+            pointLight(255, 255, 255, 0, -300, 300);  // Additional top light
+
+
+            // Wait for data to load
+            if (isLoading || !data || hasError) {
+                fill(0);
+                noStroke();
+                text('Loading...', width / 2, height / 2);
+                return;
+            }
+
+            let currentTime = millis();
+            if (animationStarted && (currentTime - lastUpdateTime >= 100)) {
+                if (currentStep < data.length - 1) {
+                    currentStep++;
+                } else {
+                    currentStep = 0;
+                }
+                lastUpdateTime = currentTime;
+            }
+
+            currentStep = Math.min(currentStep, data.length - 1);
+            let grid = data[currentStep];
+            let rows = grid.length;
+            let cols = grid[0].length;
+
+            // center 3D grid
+            translate(-cols * cellSize / 2, -rows * cellSize / 2, 0);
+
+            // draw floor
+            push();
+            fill(180);
+            noStroke();
+            translate(cols * cellSize / 2, rows * cellSize / 2, -2);
+            plane(cols * cellSize * 1.5, rows * cellSize * 1.5);
+            pop();
+
+
+            // objects inside the grid
+            for (let i = 0; i < rows; i++) {
+                for (let j = 0; j < cols; j++) {
+                    push();
+                    translate(j * cellSize, i * cellSize, 0);
+
+                    let cell = grid[i][j];
+
+                    if (cell === '#') {
+                        // wall
+                        fill(120);
+                        ambientMaterial(150);  // gray
+                        translate(0, 0, cellSize / 2);
+                        box(cellSize, cellSize, cellSize * 1.5);
+                    } else if (cell === '[') {
+                        // draw full box by checking if next cell is ']'
+                        if (j + 1 < cols && grid[i][j + 1] === ']') {
+                            // box spanning two cells
+                            fill(139, 69, 19);
+                            ambientMaterial(160, 82, 45);  // brown
+                            translate(cellSize / 2, 0, cellSize / 4);
+                            box(cellSize * 2 - 5, cellSize - 5, cellSize / 2);
+                        }
+                    } else if (cell === '@') {
+                        // robot
+                        fill(255, 0, 0);
+                        specularMaterial(0, 0, 200);  // red
+                        shininess(100);
+                        translate(0, 0, cellSize / 3);
+                        sphere(cellSize / 3);
+                    } else if (cell === '.') {
+                        // floor - light gray
+                        fill(220);
+                        ambientMaterial(220);
+                        translate(0, 0, 1);
+                        box(cellSize, cellSize, 4);
+                    }
+                    pop();
+                }
+            }
+
+            camera(0, 0, (height / 2) / tan(30), 0, 0, 0, 0, 1, 0);
+            noLights();
+            fill(0);
+            noStroke();
+            text(`Step: ${currentStep + 1}/${data.length}`, 0, -height / 2 + 30);
+        }
+
+        function mouseDragged() {
+            if (keyIsPressed && keyCode === SHIFT) {
+                targetPanX += (mouseX - pmouseX) * 2;
+                targetPanY += (mouseY - pmouseY) * 2;
+            } else {
+                targetRotationX = constrain(targetRotationX + (pmouseY - mouseY) * 0.5, -80, 80);
+                targetRotationY = targetRotationY + (pmouseX - mouseX) * 0.5;
+            }
+        }
+
+
+        function mouseWheel(event) {
+            zoomLevel = constrain(zoomLevel + event.delta, 100, 1000);
+            return false;
+        }
+
+        function keyPressed() {
+            if (key === ' ') {
+                animationStarted = !animationStarted;
+            } else if (key === 'r' || key === 'R') {
+                currentStep = 0;
+                animationStarted = false;
+            }
+        }
+    </script>
+</body>
+
+</html>
