@@ -24,19 +24,12 @@ for r in range(rows):
         if grid[r][c] == "E":
             end = (r, c)
 
-def heuristic(pos, end):
-    return abs(pos[0] - end[0]) + abs(pos[1] - end[1])
-
 def get_result():
     priority_queue = [(0, start[0], start[1], 'E')]
     visited = set()
-    min_cost = float('inf')
 
     while priority_queue:
         cost, r, c, dir = heapq.heappop(priority_queue)
-
-        if cost > min_cost:
-            continue
 
         if (r, c) == end:
             return cost
@@ -61,7 +54,7 @@ def get_result():
 
             heapq.heappush(priority_queue, (new_cost, nr, nc, new_dir))
 
-    return float('inf')
+    return -1
 
 print(get_result())
 
@@ -80,7 +73,7 @@ def get_result2():
         if (r, c) == end:
             if cost <= min_cost:
                 min_cost = cost
-                tiles |= set(path)
+                tiles = tiles.union(set(path))
             # return cost
 
         if (r, c, dir) in visited and visited[(r, c, dir)] < cost:
