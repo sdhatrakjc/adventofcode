@@ -82,3 +82,12 @@ This program outputs a copy of itself if register A is instead initialized to `1
 
 What is the lowest positive initial value for register A that causes the program to output a copy of itself?
 
+Your puzzle answer was `190593310997519`.
+
+Both parts of this puzzle are complete! They provide two gold stars: **
+
+At this point, you should return to your Advent calendar and try another puzzle.
+
+If you still want to see it, you can get your puzzle input.
+
+You can also [Share] this puzzle.
