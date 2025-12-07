@@ -32,14 +32,13 @@ print(result1)
 # PART 2
 dp = [[0]*cols for _ in range(rows)]
 dp[1][start] = 1
+
 for r in range(1, rows-1):
     for c in range(cols):
         if dp[r][c] > 0:
             if grid[r+1][c] == "^":
-                if c-1 >= 0:
-                    dp[r+1][c-1] += dp[r][c]
-                if c+1 < cols:
-                    dp[r+1][c+1] += dp[r][c]
+                dp[r+1][c-1] += dp[r][c]
+                dp[r+1][c+1] += dp[r][c]
             else:
                 dp[r+1][c] += dp[r][c]
 
