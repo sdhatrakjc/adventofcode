@@ -1,7 +1,7 @@
 from itertools import combinations
 
 input = []
-for line in open('./day08/test.txt'):
+for line in open('./day08/input.txt'):
     x, y, z = map(int, line.strip().split(","))
     input.append((x, y, z))
 
@@ -24,10 +24,10 @@ def get_root(node):
         root[node] = get_root(root[node])
     return root[node]
 
-for _, a, b in pairs[:10]:
+for _, a, b in pairs[:1000]:
     na, nb = get_root(a), get_root(b)
     root[nb] = na
-print(root)
+# print(root)
 
 root_counts = {}
 for i in range(length):
