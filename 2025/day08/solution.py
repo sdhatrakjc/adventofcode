@@ -20,10 +20,6 @@ pairs.sort()
 root = list(range(length))
 
 def get_root(node):
-    # while x != root[x]:
-    #     root[x] = root[root[x]]
-    #     x = root[x]
-    # return x
     if node != root[node]:
         root[node] = get_root(root[node])
     return root[node]
