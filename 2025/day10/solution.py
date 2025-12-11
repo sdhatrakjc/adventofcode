@@ -1,6 +1,9 @@
 import re
 from itertools import combinations
 from collections import deque
+from scipy.optimize import milp, LinearConstraint
+import numpy as np
+import timeit
 
 input = open('./day10/input.txt').readlines()
 
@@ -62,7 +65,7 @@ for pattern, buttons, joltage in machines:
 print(result1)
 
 # PART 2
-def solve_counters(joltage, buttons):
+def solve_counters_slow(joltage, buttons):
     target = tuple(map(int, joltage.split(",")))
 
     start = tuple([0]*len(target))
@@ -90,10 +93,33 @@ def solve_counters(joltage, buttons):
     print("some error occured")
     return
 
+def solve_counters(joltage, buttons):
+    target = np.asarray(list(map(int, joltage.split(","))))
+    button_count = len(buttons)
+
+    button_matrix = np.zeros((len(target), button_count))
+
+    for i, button in enumerate(buttons):
+        for counter in button:
+            button_matrix[counter][i] = 1
+
+    c = np.ones(button_count)
+
+    constraint = LinearConstraint(button_matrix, target, target)
+    result = milp(c, integrality=[1]*button_count, constraints=[constraint])
+
+    if result.success:
+        return round(result.fun)
+    else:
+        print("not expected!")
+        return
+
 result2 = 0
+start_time = timeit.default_timer()
 
 for index, (pattern, buttons, joltage) in enumerate(machines):
-    print(index)
+    # print(index)
     result2 += solve_counters(joltage, buttons)
 
 print(result2)
+print(f"{timeit.default_timer() - start_time} seconds")
